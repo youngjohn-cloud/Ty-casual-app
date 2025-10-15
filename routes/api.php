@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('user')->group(function () {
     Route::post('/register', [UserController::class, 'store']);
+    Route::post('/login', [UserController::class, 'login']);
     Route::post('/verify/email', [UserController::class, 'verifyEmail']);
     Route::patch('/verification/resend', [UserController::class, 'resendVerificaticonCode']);
 });

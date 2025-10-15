@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\EmailVerification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -153,6 +154,43 @@ class UserController extends Controller
         ], 200);
     }
 
+    // Login a User 
+    public function login(Request $request)
+    {
+        // Validate the request
+        $validate = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8',
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => "Login failed",
+                'errors' => $validate->errors(),
+            ], 400);
+        }
+        $user = User::where('email', $request->email)->first();
+        // Check if the user exists and the password is correct
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 400);
+        }
+
+        if (!$user->email_verified_at) {
+            return response()->json([
+                'message' => 'Email not verified',
+            ], 400);
+        }
+
+        // Generate a new API token for the user
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'access_token' => $token,
+            'user' => $user,
+        ], 200);
+    }
     /**
      * Display the specified User.
      */
