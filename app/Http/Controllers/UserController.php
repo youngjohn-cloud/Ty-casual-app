@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Mail\EmailVerification;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -164,7 +165,7 @@ class UserController extends Controller
         ]);
         if ($validate->fails()) {
             return response()->json([
-                'message' => "Login failed",
+                'message' => "Invalid credentials",
                 'errors' => $validate->errors(),
             ], 400);
         }
@@ -188,7 +189,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Login successful',
             'access_token' => $token,
-            'user' => $user,
+            'user' => new UserResource($user),
         ], 200);
     }
     /**
@@ -196,7 +197,13 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+        return response()->json(new UserResource($user), 200);
     }
 
 

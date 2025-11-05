@@ -14,6 +14,7 @@ Route::prefix('user')->group(function () {
     Route::post('/login', [UserController::class, 'login']);
     Route::post('/verify/email', [UserController::class, 'verifyEmail']);
     Route::patch('/verification/resend', [UserController::class, 'resendVerificaticonCode']);
+    Route::middleware(['auth:sanctum'])->get('/{id}', [UserController::class, 'show']);
 });
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index']);
