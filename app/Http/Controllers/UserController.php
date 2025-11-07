@@ -216,10 +216,21 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified User from storage.
+     * Logout the authenticated User.
      */
-    public function destroy(string $id)
+    public function logout(string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+        // Revoke all tokens
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Logout successful',
+        ], 200);
     }
 }
